@@ -207,6 +207,7 @@ class gDynn:
             knownDyns[dynid] = self
         else:
             rawData = findDynastyData(dynid, allData)
+
         findName = re.findall(r'name="(.*?)"', rawData, re.S)
         try:
             self.name = gameStringToRead(findName[0])

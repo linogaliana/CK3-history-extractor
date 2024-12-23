@@ -37,6 +37,75 @@ def combine_dicts(dicts):
     return dict(combined)
 
 
-def convert_ck3_date(date_str: str) -> str:
-    """Convert CK3 date format (YYYY.M.D) to standard date format (YYYY-MM-DD)."""
-    return datetime.strptime(date_str, "%Y.%m.%d")#.strftime("%Y-%m-%d")
+def convert_ck3_date(date_str: str):
+        # Split the date string into year, month, and day
+        parts = date_str.split('.')
+        if len(parts) != 3:
+            return None
+        
+        year, month, day = parts
+        
+        # Pad year, month, and day with leading zeros if necessary
+        year = year.zfill(4)
+        month = month.zfill(2)
+        day = day.zfill(2)
+        
+        # Construct the new date string
+        new_date_str = f"{year}-{month}-{day}"
+
+        # Convert to datetime
+        return datetime.strptime(new_date_str, '%Y-%m-%d')
+
+
+def trim_string_ck3(string: str) -> str:
+    string = (
+        string
+        .replace('dynn_', '')
+        .replace('_lifestyle', '')
+        .replace('_perk', '')
+        .replace('nick_', '')
+        .replace('death_', '')
+        .replace('ethos_', '')
+        .replace('house_', '')
+        .replace('heritage_', '')
+        .replace('martial_custom_', '')
+        .replace('tradition_', '')
+        .replace('fp2_', '')
+        .replace('fp1_', '')
+        .replace('language_', '')
+        .replace('_1', '')
+        .replace('_2', '')
+        .replace('doctrine_', '')
+        .replace('special_', '')
+        .replace('is_', '')
+        # .replace('A_', 'ã').replace('O_', 'õ').replace('E_', 'ẽ')
+        .replace('_', ' ')
+        .lower()
+        .capitalize()
+    )
+    return string
+
+
+
+def get_title_from_prefix(findKey: str, baseName: str) -> str:
+    prefix_map = {
+        'b_': 'Barony of ',
+        'c_': 'County of ',
+        'd_': 'Duchy of ',
+        'k_': 'Kingdom of ',
+        'e_': 'Empire of '
+    }
+    
+    for prefix, title in prefix_map.items():
+        if prefix in findKey:
+            return title + baseName
+    
+    return baseName
+
+
+def inject_title(rawData: str, findKey: str, baseName: str) -> str:
+    if 'article' in rawData:
+        findArt = re.findall(r'article="(.*?)"', rawData, re.S)
+        return findArt[0] + baseName
+    
+    return get_title_from_prefix(findKey, baseName)
